@@ -19,7 +19,8 @@ from IPython.display import display, clear_output
 import matplotlib.pyplot as plt
 from ipywidgets import RadioButtons, BoundedFloatText, Layout, IntProgress, VBox, HBox, HTML, Button
 import threading
-from shapely.geometry import shape, mapping
+from shapely.geometry import shape, mapping, Point, Polygon
+import math
 
 from shapely.ops import transform
 import pyproj
@@ -705,13 +706,52 @@ def draw_site_from_map(gpd_df_sub):
     """
     stop_thread = threading.Event()  # Event to signal the thread to stop
     # Function to handle area selection
+    # def handle_draw(self, action, geo_json):
+    #     global selected_area
+    #     selected_area = geo_json['geometry']
+    #     html.value = f"<b style='color:#1a2172'> <span style='color:orange'>Selected area: </span> <br> {selected_area}</b>"
+    #     set_global_result("global_selected_area", selected_area, RESULTS)
+    #     # set final_area_selection from applied buffer if any, to none
+    #     set_global_result("final_area_selection", None, RESULTS)
+    
     def handle_draw(self, action, geo_json):
         global selected_area
-        selected_area = geo_json['geometry']
-        html.value = f"<b style='color:#1a2172'> <span style='color:orange'>Selected area: </span> <br> {selected_area}</b>"
+        if geo_json['geometry']['type'] == 'Point':
+            # This is a circle, convert it to a polygon
+            center = geo_json['geometry']['coordinates']
+            print("******* Properties*****", geo_json['properties'])
+            print("******* Properties*****", geo_json['properties']['style']['radius'])
+            radius = geo_json['properties']['style']['radius']
+            selected_area = point_to_circle(center, radius)
+        else:
+            selected_area = geo_json['geometry']
+        
+        html.value = f"<b> <span style='color:orange' >Selected area: </span>     <br> {selected_area}</b>"
         set_global_result("global_selected_area", selected_area, RESULTS)
         # set final_area_selection from applied buffer if any, to none
         set_global_result("final_area_selection", None, RESULTS)
+        
+    
+    def point_to_circle(center, radius_meters):
+        """Convert a point and radius (in meters) to a polygon approximating a circle"""
+        earth_radius = 6371000  # Earth's radius in meters
+        angular_radius = radius_meters / earth_radius  # Convert to angular radius
+
+        coords = []
+        for i in range(64):  # 64 points to approximate a circle
+            angle = i * (2 * math.pi / 64)
+            lat = math.asin(
+                math.sin(center[1] * math.pi / 180) * math.cos(angular_radius) + 
+                math.cos(center[1] * math.pi / 180) * math.sin(angular_radius) * math.cos(angle)
+            )
+            lon = center[0] * math.pi / 180 + math.atan2(
+                math.sin(angle) * math.sin(angular_radius) * math.cos(center[1] * math.pi / 180),
+                math.cos(angular_radius) - math.sin(center[1] * math.pi / 180) * math.sin(lat)
+            )
+            coords.append((lon * 180 / math.pi, lat * 180 / math.pi))
+        coords.append(coords[0])  # Close the polygon
+        return {"type": "Polygon", "coordinates": [coords]}
+    
     
     # ================ add progress bar =========
     progress_value = IntProgress(min=0, max=100) # instantiate the bar
@@ -758,7 +798,8 @@ def draw_site_from_map(gpd_df_sub):
         polyline={"shapeOptions": {"color": "#ff0000", "weight": 4}},
         circle={"shapeOptions": {"color": "#ff0000", "weight": 4}},
         rectangle={"shapeOptions": {"color": "#ff0000", "weight": 4}},
-        marker={"shapeOptions": {"color": "#ff0000", "weight": 4}}
+        marker={"shapeOptions": {"color": "#ff0000", "weight": 4}},
+         circlemarker={},
     )
 
     draw_control.on_draw(handle_draw)
