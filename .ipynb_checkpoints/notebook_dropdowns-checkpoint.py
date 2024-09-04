@@ -76,7 +76,7 @@ AREA_SELECTION = None
 selected_polygon = None
 
 
-   # <b>To use entire areas shown, please click <span style='color:orange'> 'USE ALL POLYGONS' </span>.<br> If you want to select a specific polygon please click on the map, to select area and <span style='color:orange'> wait for <span style='color:#5a5c5a'> 'Selected Polygon' </span> confirmation below.<span>  </b>
+
 def helper():
     """This method will display all the available method and usage snippet to the user """
     html = widgets.HTML()
@@ -608,10 +608,7 @@ def select_site_from_map(gpd_df_sub):
     confirm_button = widgets.Button(description="CONFIRM")
     confirm_button.on_click(confirm_selection)
     
-    # Display the instructions, button, and map
-    # instructions = widgets.HTML("<b>If you are happy with the entire areas shown please click 'Confirm'.<br>If you want to select a specific polygon please click on the map.</b>")
-    # display(widgets.VBox([instructions, confirm_button]))
-    # HTML widget to display selected shapefile information
+
     html = widgets.HTML()
     html.value = "<b style='color:orange'> All polygons currently selected <b>"
     
@@ -637,7 +634,7 @@ def select_site_from_map(gpd_df_sub):
     
     # Function to handle click events and store the selected polygon
     def handle_click(event, feature, **kwargs):
-        html.value = f"<b style='color:orange'> Identifying selected area please wait .... </b> <br><br>"
+        html.value = f"<b style='color:orange'> Identifying selected area wait .... </b> <br><br>"
         global selected_polygon
         selected_polygon = feature["properties"]
         selected_polygon_geomvalue = feature["geometry"]
@@ -674,11 +671,12 @@ def select_site_from_map(gpd_df_sub):
     m.add_control(ipyleaflet.FullScreenControl())
 
     # Display the map and UI elements
+    display(HTML("<b style='color:#1a2172'> After Selecting area of interest on the map, wait for 'Selected Polygon:' confirmation below, before proceeding </b><br>")) 
     display(
         widgets.VBox(
             [
                 widgets.HTML(
-                    "<b>To use entire areas shown, please click <span style='color:orange'> 'USE ALL POLYGONS' </span>.<br> If you want to select a specific polygon please click on the map, to select area and <span style='color:orange'> wait for <span style='color:#5a5c5a'> 'Selected Polygon' </span> confirmation below.<span>  </b>"
+                    "<b>To use entire areas shown, click <span style='color:orange'> 'USE ALL POLYGONS' </span>.<br> If you want to select a specific polygon click on the map, to select area and <span style='color:orange'> wait for <span style='color:#5a5c5a'> 'Selected Polygon' </span> confirmation below.<span>  </b>"
                 ),
                 html,
                 select_all_poly_button,
@@ -686,6 +684,7 @@ def select_site_from_map(gpd_df_sub):
             ]
         )
     )
+   
 
 
     # Stop progress thread
@@ -705,28 +704,19 @@ def draw_site_from_map(gpd_df_sub):
     This function will allow users to draw interested  site area from the welsh boundry 
     """
     stop_thread = threading.Event()  # Event to signal the thread to stop
-    # Function to handle area selection
-    # def handle_draw(self, action, geo_json):
-    #     global selected_area
-    #     selected_area = geo_json['geometry']
-    #     html.value = f"<b style='color:#1a2172'> <span style='color:orange'>Selected area: </span> <br> {selected_area}</b>"
-    #     set_global_result("global_selected_area", selected_area, RESULTS)
-    #     # set final_area_selection from applied buffer if any, to none
-    #     set_global_result("final_area_selection", None, RESULTS)
     
+    # Function to handle area selection
     def handle_draw(self, action, geo_json):
         global selected_area
         if geo_json['geometry']['type'] == 'Point':
             # This is a circle, convert it to a polygon
             center = geo_json['geometry']['coordinates']
-            print("******* Properties*****", geo_json['properties'])
-            print("******* Properties*****", geo_json['properties']['style']['radius'])
             radius = geo_json['properties']['style']['radius']
             selected_area = point_to_circle(center, radius)
         else:
             selected_area = geo_json['geometry']
         
-        html.value = f"<b> <span style='color:orange' >Selected area: </span>     <br> {selected_area}</b>"
+        html.value = f"<b> <span style='color:orange'> Selected Area: </span> <br> <b style='color:#1a2172'> {selected_area} </b></b>"
         set_global_result("global_selected_area", selected_area, RESULTS)
         # set final_area_selection from applied buffer if any, to none
         set_global_result("final_area_selection", None, RESULTS)
@@ -810,6 +800,7 @@ def draw_site_from_map(gpd_df_sub):
     m.add_control(FullScreenControl())
 
     # Display the initial map with the HTML widget
+    display(HTML("<b style='color:#1a2172'> After drawing area of interest on the map, wait for 'Selected Area:' confirmation below, before proceeding </b><br>"))     
     display(VBox([html, m]))
 
     # Initialize selected_area variable
@@ -874,7 +865,7 @@ def display_geopandas_df_selection(area_selection, outline_color="black"):
         selection_map.add_control(FullScreenControl())
         
         # Display the map
-        display(HTML("<b style='color:#1a2172'> Check that area displayed, is your area of interest before proceeding, if not, reselect area above. </b><br>"))      
+        display(HTML("<b style='color:#1a2172'> Check that area displayed, is your area of interest before proceeding, if not reselect area above. </b><br>"))      
         display(selection_map)
     else:
         display(HTML("No area selected."))
@@ -950,7 +941,7 @@ def visualize_selected_area():
 
             # Display the map, button, and area in hectares
             
-            display(HTML("<b style='color:#1a2172'> Check that area displayed, is your area of interest before proceeding, if not, reselect area above. </b><br>"))
+            display(HTML("<b style='color:#1a2172'> Check that area displayed, is your area of interest before proceeding, if not reselect area above. </b><br>"))
             display(HTML(f"<b style='color:#1a2172'> Selected area: {area_ha:.2f} hectares </b><br>"))
             display(VBox([HTML("<b></b>"), selected_map, HTML(f"Area: {area_ha:.2f} hectares")]))
         else:
