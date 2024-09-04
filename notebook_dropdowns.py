@@ -82,16 +82,16 @@ def helper():
     docs = """
     <p> <b style='color:black'> List of available commands for selecting geographic sites for analysis </b> </p>
     <p style='color:black'>Example commands and description: <br> 
-    <span style='color:black'> 1.   <b style='color:orange'> polygon_select = notebook_dropdowns.area_selection() </b>: Displays available options to select vector polygon, or to draw area on map and assigns option selected to a variable "polygon_select"  </span> <br>
-     <span style='color:black'> 2.  <b style='color:orange'> polygon_df = notebook_dropdowns.view_selected_polygon(polygon_select)</b>: Reads and sets the selected vector/polygon as a geopandas dataframe  to a varible called "polygon_df" for use.  </span> <br>
-     <span style='color:black'> 3. <b style='color:orange'> notebook_dropdowns.plot_selected_polygon(polygon_select) </b>: Plots the selected vector/polygon for visual confirmation </span> <br>
-     <span style='color:black'> 4. <b style='color:orange'> notebook_dropdowns.map_and_select_area(polygon_select) </b>: Generates an interactive map to click and select an area or draw area on map if draw option is selected in  'area_selection()' </span> <br>
-     <span style='color:black'> 5. <b style='color:orange'> notebook_dropdowns.polygon_selected() </b>: Displays the set vector/polygon selected and confirmed for use for analysis it can be assigned to a variable. </span> <br>
-     <span style='color:black'> 6. <b style='color:orange'> notebook_dropdowns.visualize_selected_area() </b>: Maps the selected area for visual confirmation.  </span> <br>
-     <span style='color:black'> 7. <b style='color:orange'> notebook_dropdowns.include_buffer() </b>: Provides option to select buffer to be added to selected sites  </span> <br>
-     <span style='color:black'> 8. <b style='color:orange'> notebook_dropdowns.active_buffer() </b>: Displays how much active buffer has been set  </span> <br>
-     <span style='color:black'> 9. <b style='color:orange'> notebook_dropdowns.buffer_include_selection() </b>: Applies and displays set buffer amount to selected area, INCLUDING the selected area.  </span> <br>
-     <span style='color:black'> 10. <b style='color:orange'> notebook_dropdowns.buffer_exclude_selection() </b>: Applies and displays set buffer amount to selected area, EXCLUDING the selected area.  </span> <br>
+    <span style='color:black'> 1.   <b style='color:#1a2172'> polygon_select = notebook_dropdowns.area_selection() </b>: Displays available options to select vector polygon, or to draw area on map and assigns option selected to a variable "polygon_select"  </span> <br>
+     <span style='color:black'> 2.  <b style='color:#1a2172'> polygon_df = notebook_dropdowns.view_selected_polygon(polygon_select)</b>: Reads and sets the selected vector/polygon as a geopandas dataframe  to a varible called "polygon_df" for use.  </span> <br>
+     <span style='color:black'> 3. <b style='color:#1a2172'> notebook_dropdowns.plot_selected_polygon(polygon_select) </b>: Plots the selected vector/polygon for visual confirmation </span> <br>
+     <span style='color:black'> 4. <b style='color:#1a2172'> notebook_dropdowns.map_and_select_area(polygon_select) </b>: Generates an interactive map to click and select an area or draw area on map if draw option is selected in  'area_selection()' </span> <br>
+     <span style='color:black'> 5. <b style='color:#1a2172'> notebook_dropdowns.polygon_selected() </b>: Displays the set vector/polygon selected and confirmed for use for analysis it can be assigned to a variable. </span> <br>
+     <span style='color:black'> 6. <b style='color:#1a2172'> notebook_dropdowns.visualize_selected_area() </b>: Maps the selected area for visual confirmation.  </span> <br>
+     <span style='color:black'> 7. <b style='color:#1a2172'> notebook_dropdowns.include_buffer() </b>: Provides option to select buffer to be added to selected sites  </span> <br>
+     <span style='color:black'> 8. <b style='color:#1a2172'> notebook_dropdowns.active_buffer() </b>: Displays how much active buffer has been set  </span> <br>
+     <span style='color:black'> 9. <b style='color:#1a2172'> notebook_dropdowns.buffer_include_selection() </b>: Applies and displays set buffer amount to selected area, INCLUDING the selected area.  </span> <br>
+     <span style='color:black'> 10. <b style='color:#1a2172'> notebook_dropdowns.buffer_exclude_selection() </b>: Applies and displays set buffer amount to selected area, EXCLUDING the selected area.  </span> <br>
     </p>
     """
     html.value = docs
@@ -373,6 +373,7 @@ def area_selection():
     update_shapefiles()
 
     # Display the dropdowns and reset button
+    display(HTML("<b style='color:#1a2172'> Use the dropdown menu below to select area/site for analysis. Use the 'Reset' button to clear selection </b><br>"))
     display(get_type)
     display(get_shapefile)
     display(get_polygon)
@@ -641,7 +642,7 @@ def select_site_from_map(gpd_df_sub):
         selected_polygon_geomvalue = feature["geometry"]
         # Update the style of the selected polygon
         update_polygon_style()
-        html.value = f"<b style='color:orange'> Selected Polygon: </b> <br> {selected_polygon} <br>"
+        html.value = f"<b style='color:orange'> Selected Polygon: </b> <br> <b style='color:#1a2172'> {selected_polygon} </b> <br>"
         set_global_result("global_selected_polygon", selected_polygon, RESULTS)
         # set final_area_selection from applied buffer if any, to none
         set_global_result("final_area_selection", None, RESULTS)
@@ -707,7 +708,7 @@ def draw_site_from_map(gpd_df_sub):
     def handle_draw(self, action, geo_json):
         global selected_area
         selected_area = geo_json['geometry']
-        html.value = f"<b> <span style='color:orange' >Selected area: </span>     <br> {selected_area}</b>"
+        html.value = f"<b style='color:#1a2172'> <span style='color:orange'>Selected area: </span> <br> {selected_area}</b>"
         set_global_result("global_selected_area", selected_area, RESULTS)
         # set final_area_selection from applied buffer if any, to none
         set_global_result("final_area_selection", None, RESULTS)
@@ -832,6 +833,7 @@ def display_geopandas_df_selection(area_selection, outline_color="black"):
         selection_map.add_control(FullScreenControl())
         
         # Display the map
+        display(HTML("<b style='color:#1a2172'> Check that area displayed, is your area of interest before proceeding, if not, reselect area above. </b><br>"))      
         display(selection_map)
     else:
         display(HTML("No area selected."))
@@ -906,9 +908,13 @@ def visualize_selected_area():
             confirm_button.on_click(confirm_selection)
 
             # Display the map, button, and area in hectares
-            display(VBox([HTML("<b>If you are happy with this AREA please confirm before continuing</b>"), selected_map, HTML(f"Selected area: {area_ha:.2f} hectares")]))
+            
+            display(HTML("<b style='color:#1a2172'> Check that area displayed, is your area of interest before proceeding, if not, reselect area above. </b><br>"))
+            display(HTML(f"<b style='color:#1a2172'> Selected area: {area_ha:.2f} hectares </b><br>"))
+            display(VBox([HTML("<b></b>"), selected_map, HTML(f"Area: {area_ha:.2f} hectares")]))
         else:
-            display(HTML("No area selected."))
+           
+            display(HTML("<b style='color:#1a2172'> No area selected. </b><br>"))
     else: 
         # display(HTML("<b> <span style='color:orange'> No visuals </span>: Selected area was not drawn from map. Below is the currently selected area details</b>"))
         selected_area = polygon_selected()
